@@ -2,7 +2,7 @@
 
 > NbSwitch let's you bring a notebook with educational content, describe a new use case, and change the original one to that using Claude Sonnet 3.5!
 
-![alt text](image.png)
+![alt text](images/image.png)
 
 There are thousands of incredible educational notebooks out there that could be shown some love, and, what if that meant that, in the 
 case of data-related topics, for example, changing the use case of any given notebook to a completely new one? That's what NbSwitch is for. :sunglasses:
@@ -11,9 +11,10 @@ The app can be found [live here](https://nbswitch.fly.dev/).
 
 **Limitations**
 - Make sure your notebook has not been run before you upload it.
-- Don't add overly long notebooks, e.g., those requiring more than `max_tokens=4_096`. 
+- Don't add overly long notebooks, e.g., those requiring more than `max_tokens=4_096`.
+- Didn't test it on mobile (this might be more useful for markdown files for the obsidian lovers (myself included :smiley: ))
 
-![alt text](image-1.png)
+![alt text](images/image-1.png)
 
 This project was created as part of Anthropic's June 2024 Hackathon and it was build using their Claude Sonnet 3.5 model.
 
