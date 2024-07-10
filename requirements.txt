@@ -1,0 +1,7 @@
+anthropic
+instructor
+bs4
+fastapi
+pydantic
+nbconvert
+nbformat

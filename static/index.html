@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoSwitch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/@pines/ui@latest/dist/css/pines.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'lantern-green': '#006633',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .notebook-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+            min-height: 400px;
+        }
+        .notebook-content {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        .notebook-cell {
+            background-color: #ffffff;
+            color: #000000;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .notebook-cell pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200 min-h-full" 
+      x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" 
+      :class="{ 'dark': darkMode }">
+    <div class="container mx-auto px-4 py-8 flex flex-col min-h-full">
+        <div class="flex justify-end mb-4">
+            <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode); document.documentElement.classList.toggle('dark')" 
+                    class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                <svg x-show="!darkMode" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <svg x-show="darkMode" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="flex-grow flex flex-col items-center">
+            <h1 class="text-5xl font-bold mb-4 text-center">NbSwitch</h1>
+            
+            <p class="text-lg mb-8 text-center">
+                This web app takes in an educational notebook and changes the use case of the lesson.
+            </p>
+            <div x-data="{ 
+                file: null, 
+                prompt: '', 
+                loading: false,
+                examples: [
+                    { name: 'Example 1: Retail Industry', file: 'example1.ipynb', prompt: 'Give me a retail-related use case of your choosing.' },
+                    { name: 'Example 2: Computer Vision', file: 'example2.ipynb', prompt: 'Adapt this notebook using image data for a classification use case.' },
+                    { name: 'Example 3: Data Visualization', file: 'example3.ipynb', prompt: 'Modify this data visualization notebook to use seaborn instead of matplotlib.' }
+                ]
+            }" class="w-full max-w-2xl">
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-2">Example Prompts</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <template x-for="(example, index) in examples" :key="index">
+                            <button 
+                                @click="file = example.file; prompt = example.prompt;"
+                                class="p-4 border rounded-lg text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                                :class="{'bg-blue-100 dark:bg-blue-900': file === example.file}"
+                            >
+                                <span x-text="example.name" class="font-medium"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            
+                <form hx-post="/process" 
+                      hx-target="#result" 
+                      hx-encoding="multipart/form-data"
+                      hx-indicator="#loading"
+                      @htmx:before-request="loading = true"
+                      @htmx:after-request="loading = false">
+                    <div class="mb-4">
+                        <label for="notebook" class="block text-sm font-medium">Upload Jupyter Notebook</label>
+                        <input type="file" id="notebook" name="notebook" accept=".ipynb" 
+                               class="mt-1 block w-full text-sm
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded-md file:border-0
+                                      file:text-sm file:font-semibold
+                                      file:bg-lantern-green file:text-white
+                                      hover:file:bg-green-700"
+                               x-on:change="file = $event.target.files[0]">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="prompt" class="block text-sm font-medium">Prompt</label>
+                        <textarea id="prompt" name="prompt" rows="3" 
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-lantern-green focus:ring focus:ring-green-200 focus:ring-opacity-50 p-2 dark:bg-gray-700 dark:border-gray-600"
+                                  x-model="prompt"></textarea>
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full px-4 py-2 bg-lantern-green text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200"
+                            x-bind:disabled="!file || !prompt || loading"
+                            x-text="!file || !prompt ? 'Please upload a file and enter a prompt' : (loading ? 'Processing...' : 'Process')">
+                        Process
+                    </button>
+                </form>
+                
+                <div id="loading" class="htmx-indicator mt-4 text-center">
+                    <svg class="animate-spin h-8 w-8 mx-auto text-lantern-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div id="result" class="mt-8 w-full"></div>
+        
+        <div id="download-section" class="mt-4 text-center" style="display: none;">
+            <button id="download-button" 
+                    class="px-4 py-2 bg-lantern-green text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200">
+                Download New Notebook
+            </button>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@pines/ui@latest/dist/js/pines.min.js"></script>
+    <script>
+        document.addEventListener('htmx:afterSwap', function(event) {
+            const resultElement = document.getElementById('result');
+            if (resultElement.querySelector('#notebook-diff')) {
+                document.getElementById('download-section').style.display = 'block';
+            }
+        });
+
+        document.getElementById('download-button').addEventListener('click', function() {
+            const newNotebookContent = document.getElementById('new-notebook').textContent;
+            const blob = new Blob([newNotebookContent], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'modified_notebook.ipynb';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Initialize dark mode based on localStorage
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</body>
+</html>
