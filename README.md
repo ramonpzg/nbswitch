@@ -4,8 +4,19 @@
 
 ![alt text](images/image.png)
 
-There are thousands of incredible educational notebooks out there that could be shown some love, and, what if that meant that, in the 
-case of data-related topics, for example, changing the use case of any given notebook to a completely new one? That's what NbSwitch is for. :sunglasses:
+There are thousands of incredible educational notebooks out there that could be shown some love, so, what if that meant that, in the 
+case of data-related topics, we could change the use case of any given notebook to a completely new one? That's what NbSwitch is for. :sunglasses:
+
+As of now, the app works in the following way:
+1. Select your notebook and write a prompt (there is no order for this at the moment). Press the wide green button.
+2. Claude will go through the notebook and, based on a template prompt and your written one, it will evaluate which cells need to change and which don't and 
+then return a list with the index of each of the cells that will need to be changed.
+1. The second pass through Claude includes:
+   1. A slightly different prompt template
+   2. your prompt again
+   3. the list of cells that need to be changed
+2. Then the endpoint returns HTML back to the front-end with both the new and the original notebook
+3. Scroll down for a button to download your `.ipynb` file.
 
 The app can be found [live here](https://nbswitch.fly.dev/). 
 
@@ -78,9 +89,13 @@ uvicorn main:app --reload
 
 ## Roadmap
 
+- [ ] (Important!) Optimize the process for generating the new notebooks, right now, it is relatively expensive to change one.
+- [ ] (Important!) Add an error message in case the user does not add a notebook and only a prompt.
+- [ ] Provide a way for users to input their own API key.
+- [ ] Limit the usage (maybe to 10 notebooks per person and per month as I am paying for it)
 - [ ] Add support for markdown files
 - [ ] Add support for marimo files
 - [ ] Add example notebooks
 - [ ] Add more example prompts
-- [ ] Add interactivity
+- [ ] Add interactivity where, for example, the user could select a part of the notebook they didn't like and ask Claude to change it.
 - [ ] Allow users to bring in notebooks with outputs
