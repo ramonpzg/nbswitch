@@ -100,3 +100,4 @@ uvicorn main:app --reload
 - [ ] Add interactivity where, for example, the user could select a part of the notebook they didn't like and ask Claude to change it.
 - [ ] Allow users to bring in notebooks with outputs
 - [ ] Allow users to add a name to their new notebooks or select a random one for them
+- [ ] Create CLI
