@@ -1,6 +1,7 @@
-from pydantic.types import Literal, List, Union, Optional
-from pydantic import BaseModel, Field
-
+from pydantic.types import Literal, List, Union
+from pydantic import BaseModel, Field, model_validator
+from typing import Optional
+from enum import Enum
 
 class MDCell(BaseModel):
     cell_type: Literal['markdown'] = 'markdown'
@@ -21,6 +22,15 @@ class ListOfCells(BaseModel):
     cells_of_interest: List[int]
 
 
+class Provider(str, Enum):
+    ANTHROPIC = "Anthropic"
+    OPENAI = "OpenAI"
+    OLLAMA = "Ollama"
+    COHERE = "Cohere"
+    HUGGINGFACE = "HuggingFace"
+    GROQ = "Groq"
+    LLAMACPP = "LlamaCPP"
+    LITELLM = "LiteLLM"
 
 # class ModelDetails(BaseModel):
 #     model: Literal[
@@ -33,13 +43,6 @@ class ListOfCells(BaseModel):
 #     API_KEY: str
 
 class ProviderDetails(BaseModel):
-    provider: Literal[
-        "Anthropic",
-        "OpenAI",
-        "Ollama",
-        "Cohere",
-        "HuggingFace",
-        "LlamaCPP",
-    ] = "Anthropic"
-    api_key: Optional[str]
-    url: Optional[str]
+    provider: Provider = Provider.ANTHROPIC
+    api_key: Optional[str] = None
+    base_url: Optional[str] = None
