@@ -6,8 +6,8 @@ authors = [
     {name = "Ramon Perez", email = "ramonpzg@protonmail.com"},
 ]
 dependencies = [
-    "anthropic",
-    "instructor",
+    "anthropic>=0.33.1",
+    "instructor>=1.3.7",
     "bs4",
     "fastapi",
     "pydantic",
@@ -16,8 +16,11 @@ dependencies = [
     "typer",
     "rich",
     "faker",
-    "litellm",
+    "litellm>=1.40.8",
     "count-tokens>=0.7.0",
+    "groq>=0.9.0",
+    "cohere>=5.8.0",
+    "python-fasthtml>=0.3.4",
 ]
 requires-python = ">=3.11"
 readme = "README.md"

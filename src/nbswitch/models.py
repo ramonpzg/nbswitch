@@ -16,7 +16,7 @@ class CodeCell(BaseModel):
     source: str
 
 class FullNotebook(BaseModel):
-    full_nb: List[Union[MDCell, CodeCell]]
+    all_cells: List[Union[MDCell, CodeCell]]
 
 class ListOfCells(BaseModel):
     cells_of_interest: List[int]
