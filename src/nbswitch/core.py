@@ -361,3 +361,7 @@ class NbSwitch:
     # def while_waiting():
     #     answer = input("Want to hear a joke while you wait 😌: (yes/no)")
     #     if answer == 'yes':
+
+    # @classmethod
+    # def flip(cls):
+    #     pass
